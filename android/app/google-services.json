@@ -1,0 +1,98 @@
+{
+  "project_info": {
+    "project_number": "233979300222",
+    "project_id": "voca-twin-6fcdf",
+    "storage_bucket": "voca-twin-6fcdf.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:233979300222:android:d2b79e2d14f7a2a531cb2f",
+        "android_client_info": {
+          "package_name": "com.example.finalyear"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "233979300222-b41be2361pi0tc035oqv42algj2k6sg5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCORqiUgvZ1sd7NIQ_Oz0KOW6CKaaW2nKU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "233979300222-b41be2361pi0tc035oqv42algj2k6sg5.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "233979300222-m1noc38cr00d99m8r3g0vkvtg64ddaa0.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.finalyear"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:233979300222:android:736a1927c21a002b31cb2f",
+        "android_client_info": {
+          "package_name": "com.example.voca_twin"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "233979300222-f0v05vvp3cunmuaiu2jvbjca04upv895.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.voca_twin",
+            "certificate_hash": "699b0380ab20c9fbb1d12e7b7a79f3d883fc86f9"
+          }
+        },
+        {
+          "client_id": "233979300222-q7m10h4hrgc2g31od7b53p5e54uo5fod.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.voca_twin",
+            "certificate_hash": "eb4f3cb4ad68d6313110669b2e528a78aabaa546"
+          }
+        },
+        {
+          "client_id": "233979300222-b41be2361pi0tc035oqv42algj2k6sg5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCORqiUgvZ1sd7NIQ_Oz0KOW6CKaaW2nKU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "233979300222-b41be2361pi0tc035oqv42algj2k6sg5.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "233979300222-m1noc38cr00d99m8r3g0vkvtg64ddaa0.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.finalyear"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
