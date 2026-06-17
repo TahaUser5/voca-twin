@@ -29,7 +29,6 @@
 
 ## Table of Contents
 
-- [Demo](#demo)
 - [Overview](#overview)
 - [How Voice Cloning Works](#how-voice-cloning-works)
 - [Features](#features)
@@ -45,10 +44,6 @@
 - [Documentation](#documentation)
 
 ---
-
-## Demo
-
-> Video demo coming soon — will be linked here.
 
 To run the project locally, follow the [Getting Started](#getting-started) guide below.
 
