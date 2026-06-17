@@ -453,13 +453,11 @@ python app.py
 
 ## Team
 
-<table>
-  <tr>
-    <td align="center"><b>👑 Muhammad Muzamil</b><br/>Founder &amp; UI Lead<br/><sub>App design, Flutter frontend, project management</sub></td>
-    <td align="center"><b>🚀 Taha Tanvir</b><br/>Co-Founder &amp; Flutter Expert<br/><sub>Flutter development, API integration, backend connectivity</sub></td>
-    <td align="center"><b>🎓 Najaf Ali</b><br/>Project Supervisor<br/><sub>Academic guidance &amp; project oversight</sub></td>
-  </tr>
-</table>
+| Role | Name | Responsibilities |
+|---|---|---|
+| Founder & UI Lead | Muhammad Muzamil | App design, Flutter frontend, project management |
+| Co-Founder & Flutter Expert | Taha Tanvir | Flutter development, API integration, backend connectivity |
+| Project Supervisor | Najaf Ali | Academic guidance & project oversight |
 
 ---
 
