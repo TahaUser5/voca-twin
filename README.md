@@ -96,25 +96,75 @@ VocaTwin was built as a Final Year Project to explore the convergence of **voice
 
 ## Architecture
 
-```
-┌─────────────────────────────────────────────┐
-│              Flutter Mobile App              │
-│  (Android / iOS — Dart + Firebase SDK)       │
-│                                              │
-│  ┌──────────┐  ┌──────────┐  ┌───────────┐  │
-│  │  Auth    │  │  Voice   │  │  Chatbot  │  │
-│  │ Firebase │  │ Cloning  │  │  Screen   │  │
-│  └────┬─────┘  └────┬─────┘  └─────┬─────┘  │
-└───────┼─────────────┼───────────────┼────────┘
-        │             │               │
-        ▼             ▼               ▼
-  Firebase Auth   Flask API      Flask API
-  Firestore       Voice Clone    Chatbot
-  Storage         (Port 5000)    (Port 5001)
-                       │               │
-                       ▼               ▼
-                  Voice Cloning   DeepSeek R1
-                  AI Model        (OpenRouter)
+```mermaid
+flowchart TD
+    User(["👤 User"])
+
+    subgraph Flutter["Flutter Mobile App (Android / iOS)"]
+        direction TB
+        Auth["Auth Screens\nLogin · Signup · Verify"]
+        Home["Home Screen\nDashboard + Recent Voices"]
+        Voice["Voice Cloning Screen\n30s Recorder + Waveform"]
+        Face["Face Scan Screen\nML Kit On-Device Detection"]
+        AvatarScreen["Avatar Screen\nVideo Generation & Playback"]
+        ChatScreen["Chatbot Screen\nVocaTwinBot UI"]
+        Profile["Profile & Settings"]
+    end
+
+    subgraph Services["Service Layer (Dart)"]
+        AuthSvc["auth_service.dart"]
+        VoiceSvc["voice_cloning_service.dart"]
+        AvatarSvc["avatar_service.dart"]
+        ChatSvc["chatbot_service.dart"]
+    end
+
+    subgraph ChatBackend["Flask — Chatbot API (Port 5001)"]
+        ChatAPI["/chat endpoint"]
+        StaticHandler["Static Response Handler"]
+        ORClient["OpenRouter Client"]
+    end
+
+    subgraph VoiceBackend["Flask — Voice Clone API (Port 5000)"]
+        VoiceAPI["/synthesize endpoint"]
+        VITS["Voice Cloning AI Model"]
+    end
+
+    subgraph Firebase["Firebase Services"]
+        FBAuth[("Firebase Auth\nEmail · Google · Apple")]
+        Firestore[("Cloud Firestore\nUser Data")]
+        FBStorage[("Firebase Storage\nAvatars & Voices")]
+    end
+
+    subgraph External["External APIs"]
+        DeepSeek["OpenRouter\nDeepSeek R1"]
+        Weather["OpenWeatherMap\nOptional"]
+        MLKit["Google ML Kit\nFace Detection"]
+    end
+
+    User --> Auth & Home & Voice & Face & ChatScreen & Profile
+
+    Auth --> AuthSvc
+    Voice --> VoiceSvc
+    Face --> AvatarSvc
+    AvatarScreen --> AvatarSvc
+    ChatScreen --> ChatSvc
+
+    AuthSvc --> FBAuth
+    AuthSvc --> Firestore
+    AvatarSvc -->|"HTTP Multipart"| VoiceAPI
+    AvatarSvc -->|"Save video"| FBStorage
+    VoiceSvc -->|"HTTP Multipart"| VoiceAPI
+    VoiceSvc -->|"Save audio"| FBStorage
+    ChatSvc -->|"HTTP POST"| ChatAPI
+
+    ChatAPI --> StaticHandler
+    ChatAPI --> ORClient
+    ORClient --> DeepSeek
+    ORClient --> Weather
+
+    VoiceAPI --> VITS
+
+    Face --> MLKit
 ```
 
 ---
