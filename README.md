@@ -45,10 +45,6 @@
 
 ---
 
-To run the project locally, follow the [Getting Started](#getting-started) guide below.
-
----
-
 ## Overview
 
 VocaTwin was built as a Final Year Project to explore the convergence of **voice AI**, **computer vision**, and **mobile development**. The app allows users to:
