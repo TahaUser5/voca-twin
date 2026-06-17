@@ -2,8 +2,8 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class ChatbotService {
-  // TODO: replace with your backend IP or use a config file
-  static const String _baseUrl = 'http://192.168.100.9:5001';
+  // Update this URL to match where your chatbot backend is running
+  static const String _baseUrl = 'http://localhost:5001';
 
   /// Sends [prompt] to the backend chat endpoint and returns the reply.
   static Future<String> sendMessage(String prompt) async {

@@ -3,8 +3,8 @@ import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart' as path_provider;
 
 class VoiceCloningService {
-  // Hard-coded backend URL for voice cloning
-  static const String _baseUrl = 'http://192.168.100.9:5000';
+  // Update this URL to match where your voice clone backend is running
+  static const String _baseUrl = 'http://localhost:5000';
 
   static Future<String> cloneVoice(String audioPath, String text) async {
     try {
