@@ -47,6 +47,11 @@ app.*.map.json
 # Environment variables
 .env
 
+# Firebase credentials
+android/app/google-services.json
+ios/Runner/GoogleService-Info.plist
+lib/firebase_options.dart
+
 # Python backend
 venv/
 __pycache__/
