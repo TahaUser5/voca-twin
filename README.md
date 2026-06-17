@@ -12,6 +12,7 @@
 
 [![Flutter](https://img.shields.io/badge/Flutter-3.x-02569B?style=flat-square&logo=flutter&logoColor=white)](https://flutter.dev)
 [![Flask](https://img.shields.io/badge/Flask-Python%203.9+-000000?style=flat-square&logo=flask&logoColor=white)](https://flask.palletsprojects.com)
+[![CoquiTTS](https://img.shields.io/badge/Coqui%20TTS-YourTTS%20Model-8B5CF6?style=flat-square)](https://github.com/coqui-ai/TTS)
 [![DeepSeek](https://img.shields.io/badge/DeepSeek-R1%20via%20OpenRouter-4A90D9?style=flat-square)](https://openrouter.ai)
 [![Firebase](https://img.shields.io/badge/Firebase-Auth%20%7C%20Firestore%20%7C%20Storage-FFCA28?style=flat-square&logo=firebase&logoColor=black)](https://firebase.google.com)
 [![Platform](https://img.shields.io/badge/Platform-Android%20%7C%20iOS-lightgrey?style=flat-square&logo=android)](https://flutter.dev)
@@ -28,7 +29,9 @@
 
 ## Table of Contents
 
+- [Demo](#demo)
 - [Overview](#overview)
+- [How Voice Cloning Works](#how-voice-cloning-works)
 - [Features](#features)
 - [Architecture](#architecture)
 - [Tech Stack](#tech-stack)
@@ -37,8 +40,17 @@
 - [Running the Backends](#running-the-backends)
 - [Environment Variables](#environment-variables)
 - [App Screens](#app-screens)
+- [Known Limitations](#known-limitations)
 - [Team](#team)
 - [Documentation](#documentation)
+
+---
+
+## Demo
+
+> Video demo coming soon — will be linked here.
+
+To run the project locally, follow the [Getting Started](#getting-started) guide below.
 
 ---
 
@@ -47,37 +59,73 @@
 VocaTwin was built as a Final Year Project to explore the convergence of **voice AI**, **computer vision**, and **mobile development**. The app allows users to:
 
 1. **Record a 30-second voice sample** — a built-in audio visualizer shows real-time decibel levels as you speak
-2. **Clone that voice** — the recording is sent to a custom Flask backend where AI synthesizes a cloned voice model
-3. **Scan your face** — Google ML Kit detects your face in real time
+2. **Clone that voice** — the recording is sent to a Flask backend running Coqui TTS (YourTTS model) which synthesizes speech in the user's voice
+3. **Scan your face** — Google ML Kit detects your face in real time using on-device processing
 4. **Generate an animated talking avatar** — your face and cloned voice are combined into a video avatar
-5. **Chat with VocaTwinBot** — an AI assistant powered by **DeepSeek R1** that answers questions about the app and general topics
+5. **Chat with VocaTwinBot** — an AI assistant powered by **DeepSeek R1** via OpenRouter that answers questions about the app and general topics
+
+---
+
+## How Voice Cloning Works
+
+VocaTwin's voice cloning pipeline runs entirely on a local Flask backend and uses **[Coqui TTS](https://github.com/coqui-ai/TTS)** with the **YourTTS** model — a multilingual, zero-shot voice cloning model that requires no fine-tuning.
+
+```
+User records 30s audio sample (WAV/AAC)
+        │
+        ▼
+Flutter app sends audio via HTTP Multipart POST to /synthesize
+        │
+        ▼
+Flask backend receives audio + target text
+        │
+        ▼
+Coqui TTS (YourTTS) performs zero-shot speaker adaptation
+— extracts speaker embedding from the reference audio
+— conditions the TTS model on that embedding
+— synthesizes the target text in the user's voice
+        │
+        ▼
+Output WAV file returned to Flutter app
+        │
+        ▼
+App saves to local storage and Firebase Storage
+```
+
+**Key technical points:**
+- **Zero-shot cloning** — no training required; the model adapts from a single audio sample at inference time
+- **Model:** `tts_models/multilingual/multi-dataset/your_tts`
+- **Language:** English (configurable)
+- **Input:** 30-second WAV/AAC reference audio + target text string
+- **Output:** Synthesized WAV audio in the speaker's cloned voice
+- **Inference:** Runs on CPU locally; GPU significantly improves speed
 
 ---
 
 ## Features
 
-### 🎤 Voice Recording & Cloning
+### Voice Recording & Cloning
 - Record up to 30 seconds of voice with a real-time animated waveform visualizer
 - Pause, resume, and restart recordings
 - Automatic codec selection (AAC on Android, WAV on iOS)
-- Send recording to backend for AI voice cloning
+- Send recording to Coqui TTS backend for zero-shot voice synthesis
 - Save, rename, play back, and delete recordings locally
 
-### 🤳 Face Scanning & Avatar Generation
-- Live face detection using Google ML Kit
+### Face Scanning & Avatar Generation
+- Live face detection using Google ML Kit (fully on-device, no network call)
 - Upload face photo + cloned voice to generate a talking avatar video
 - Save generated avatar videos to Firebase Storage
 - View all saved avatars in a dedicated gallery screen
 
-### 🤖 VocaTwinBot (AI Chatbot)
+### VocaTwinBot (AI Chatbot)
 - Powered by **DeepSeek R1** via OpenRouter API
 - Intelligent responses about VocaTwin features and usage
-- Suggestion chips for common questions on first open
-- Shows response time for each reply
-- Animated loading indicator ("bouncing dots") while waiting for response
+- Quick-reply suggestion chips on first open
+- Displays response time for each reply
+- Animated loading indicator while waiting for response
 - Optional live weather integration via OpenWeatherMap API
 
-### 🔐 Authentication
+### Authentication
 - Email & Password login with Firebase Auth
 - Google Sign-In
 - Apple Sign-In
@@ -85,12 +133,12 @@ VocaTwin was built as a Final Year Project to explore the convergence of **voice
 - "Remember Me" with SharedPreferences
 - Change password from profile settings
 
-### 👤 Profile & Settings
+### Profile & Settings
 - Edit display name and profile picture
 - View saved voice recordings
 - View cloned voices
 - View saved avatar videos
-- Logout with session clear
+- Logout with full session clear
 
 ---
 
@@ -126,7 +174,7 @@ flowchart TD
 
     subgraph VoiceBackend["Flask — Voice Clone API (Port 5000)"]
         VoiceAPI["/synthesize endpoint"]
-        VITS["Voice Cloning AI Model"]
+        VITS["Coqui TTS — YourTTS Model\nZero-Shot Speaker Cloning"]
     end
 
     subgraph Firebase["Firebase Services"]
@@ -138,7 +186,7 @@ flowchart TD
     subgraph External["External APIs"]
         DeepSeek["OpenRouter\nDeepSeek R1"]
         Weather["OpenWeatherMap\nOptional"]
-        MLKit["Google ML Kit\nFace Detection"]
+        MLKit["Google ML Kit\nOn-Device Face Detection"]
     end
 
     User --> Auth & Home & Voice & Face & ChatScreen & Profile
@@ -178,9 +226,10 @@ flowchart TD
 | **Authentication** | Firebase Auth (Email, Google, Apple) |
 | **Database** | Cloud Firestore |
 | **File Storage** | Firebase Storage |
-| **Face Detection** | Google ML Kit Face Detection |
+| **Face Detection** | Google ML Kit Face Detection (on-device) |
+| **Voice Cloning Model** | Coqui TTS — YourTTS (zero-shot, multilingual) |
 | **Chatbot Backend** | Flask (Python), DeepSeek R1 via OpenRouter |
-| **Voice Clone Backend** | Flask (Python), custom AI voice synthesis |
+| **Voice Clone Backend** | Flask (Python), Coqui TTS subprocess |
 | **Local Storage** | SharedPreferences, path_provider |
 | **State Management** | setState (widget-level) |
 
@@ -191,18 +240,18 @@ flowchart TD
 ```
 voca_twin_fyp/
 │
-├── 📁 lib/                            Flutter app source
+├── lib/                               Flutter app source
 │   ├── main.dart                      App entry point & MaterialApp setup
 │   ├── routes.dart                    Named route definitions
 │   ├── firebase_options.dart.example  Firebase config template
 │   │
-│   ├── 📁 screens/
-│   │   ├── 📁 auth/
+│   ├── screens/
+│   │   ├── auth/
 │   │   │   ├── login_screen.dart      Email/Google/Apple login
 │   │   │   ├── signup_screen.dart     New account registration
 │   │   │   └── verify_email_screen.dart
 │   │   │
-│   │   ├── 📁 main/
+│   │   ├── main/
 │   │   │   ├── home_screen.dart       Dashboard with recent voices
 │   │   │   ├── voice_cloning_screen.dart  30s recorder + waveform visualizer
 │   │   │   ├── chatbot_screen.dart    VocaTwinBot chat UI
@@ -210,19 +259,18 @@ voca_twin_fyp/
 │   │   │   ├── avatar_screen.dart     Avatar generation & playback
 │   │   │   ├── cloned_voices_screen.dart
 │   │   │   ├── audio_selection_screen.dart
-│   │   │   ├── synthesize_screen.dart
-│   │   │   └── ...
+│   │   │   └── synthesize_screen.dart
 │   │   │
-│   │   ├── 📁 profile/
+│   │   ├── profile/
 │   │   │   ├── edit_profile_screen.dart
 │   │   │   ├── change_password_screen.dart
 │   │   │   ├── profile_settings_screen.dart
 │   │   │   └── saved_avatars_screen.dart
 │   │   │
-│   │   └── 📁 microphone/
+│   │   └── microphone/
 │   │       └── recent_played_screen.dart
 │   │
-│   ├── 📁 services/
+│   ├── services/
 │   │   ├── auth_service.dart          Firebase auth wrapper
 │   │   ├── chatbot_service.dart       HTTP calls to chatbot backend
 │   │   ├── voice_cloning_service.dart HTTP calls to voice clone backend
@@ -230,35 +278,35 @@ voca_twin_fyp/
 │   │   ├── api_service.dart           Shared HTTP utilities
 │   │   └── ai_service.dart            Gemini AI integration (optional)
 │   │
-│   ├── 📁 widgets/
+│   ├── widgets/
 │   │   ├── custom_bottom_navbar.dart
 │   │   ├── custom_button.dart
 │   │   └── voice_card.dart
 │   │
-│   └── 📁 utills/
+│   └── utills/
 │       ├── constants.dart             API URLs, color constants
 │       ├── theme.dart                 App-wide theme
 │       ├── validators.dart            Form validators
 │       └── helpers.dart
 │
-├── 📁 backend/
-│   ├── 📁 chatbot/                    DeepSeek R1 chatbot API
+├── backend/
+│   ├── chatbot/                       DeepSeek R1 chatbot API
 │   │   ├── app.py                     Flask server — POST /chat (port 5001)
 │   │   ├── chatbot.py                 CLI test client
 │   │   ├── requirements.txt
 │   │   └── .env.example
 │   │
-│   └── 📁 voice_clone/               Voice synthesis API
-│       ├── app.py                     Flask server — POST /clone (port 5000)
+│   └── voice_clone/                   Coqui TTS voice synthesis API
+│       ├── app.py                     Flask server — POST /synthesize (port 5000)
 │       ├── requirements.txt
 │       └── .env.example
 │
-├── 📁 docs/
+├── docs/
 │   ├── VocaTwin_Documentation.pdf     Full project documentation
 │   └── VocaTwin_Presentation.pptx    Defense presentation slides
 │
-├── 📁 assets/images/                  App images & logo
-├── 📁 android/app/
+├── assets/images/                     App images & logo
+├── android/app/
 │   └── google-services.json.example  Firebase Android config template
 ├── pubspec.yaml                       Flutter dependencies
 └── .gitignore
@@ -275,6 +323,7 @@ Make sure you have the following installed:
 - [Flutter SDK](https://flutter.dev/docs/get-started/install) `>=3.6.0`
 - [Android Studio](https://developer.android.com/studio) or [VS Code](https://code.visualstudio.com/) with Flutter extension
 - [Python 3.9+](https://www.python.org/downloads/)
+- [Coqui TTS](https://github.com/coqui-ai/TTS) — `pip install TTS` (required for voice clone backend)
 - A [Firebase project](https://console.firebase.google.com/) with **Auth**, **Firestore**, and **Storage** enabled
 
 ### 1. Clone the Repository
@@ -305,7 +354,7 @@ flutter pub get
 ### 4. Run the App
 
 ```bash
-# Make sure an Android emulator or device is connected
+# Make sure an Android emulator or physical device is connected
 flutter run
 ```
 
@@ -345,6 +394,7 @@ cd backend/voice_clone
 python -m venv venv
 venv\Scripts\activate
 
+# Install dependencies (includes Coqui TTS — may take a few minutes)
 pip install -r requirements.txt
 
 cp .env.example .env
@@ -352,6 +402,8 @@ cp .env.example .env
 python app.py
 # Server running at http://localhost:5000
 ```
+
+> **Note:** The first run of the voice clone backend will automatically download the YourTTS model weights (~1.5 GB). Ensure you have a stable internet connection and sufficient disk space.
 
 ---
 
@@ -386,7 +438,7 @@ python app.py
 | **Voice Cloning** | 30s recorder with live waveform, pause/resume/restart |
 | **Audio Added** | Confirmation screen after recording with upload option |
 | **Synthesize** | Select text and voice for synthesis |
-| **Face Scan** | Real-time face detection using ML Kit |
+| **Face Scan** | Real-time on-device face detection using ML Kit |
 | **Avatar** | Generate and play animated talking avatar video |
 | **Chatbot** | Full chat UI with VocaTwinBot (DeepSeek R1) |
 | **Cloned Voices** | Library of all previously cloned voice models |
@@ -398,15 +450,23 @@ python app.py
 
 ---
 
+## Known Limitations
+
+- **Voice cloning quality** depends on the clarity and length of the reference audio. Background noise or very short samples reduce output quality.
+- **Inference speed** varies by hardware. CPU-only inference on the YourTTS model can take 10–30 seconds. A CUDA-enabled GPU significantly reduces this.
+- **Avatar generation** requires both a clear face image and a valid cloned audio file. Poor lighting or partial face detection may cause failures.
+- **Chatbot** relies on OpenRouter API availability. If the API is unreachable, responses will fall back to static pre-defined answers.
+- **Both Flask backends must be running** locally for full app functionality. There is currently no cloud deployment.
+
+---
+
 ## Team
 
-<table>
-  <tr>
-    <td align="center"><b>👑 Muhammad Muzamil</b><br/>Founder &amp; UI Lead<br/><sub>App design, Flutter frontend, project management</sub></td>
-    <td align="center"><b>🚀 Taha Tanvir</b><br/>Co-Founder &amp; Flutter Expert<br/><sub>Flutter development, API integration, backend connectivity</sub></td>
-    <td align="center"><b>🎓 Najaf Ali</b><br/>Project Supervisor<br/><sub>Academic guidance &amp; project oversight</sub></td>
-  </tr>
-</table>
+| Role | Name | Responsibilities |
+|---|---|---|
+| Founder & UI Lead | Muhammad Muzamil | App design, Flutter frontend, project management |
+| Co-Founder & Flutter Expert | Taha Tanvir | Flutter development, API integration, backend connectivity |
+| Project Supervisor | Najaf Ali | Academic guidance & project oversight |
 
 ---
 
