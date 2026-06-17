@@ -284,7 +284,7 @@ cp .env.example .env
 
 # Start the server
 python app.py
-# ✅ Running at http://localhost:5001
+# Server running at http://localhost:5001
 ```
 
 ### Voice Clone Backend (Port 5000)
@@ -300,7 +300,7 @@ pip install -r requirements.txt
 cp .env.example .env
 
 python app.py
-# ✅ Running at http://localhost:5000
+# Server running at http://localhost:5000
 ```
 
 ---
